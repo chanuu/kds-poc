@@ -1,12 +1,19 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { database, ref, onValue, update } from '../firebase';
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import { database } from "../firebase";
+import { onValue, ref } from "firebase/database";
 
 const KDSContext = createContext();
 
 export const useKDS = () => {
   const context = useContext(KDSContext);
   if (!context) {
-    throw new Error('useKDS must be used within a KDSProvider');
+    throw new Error("useKDS must be used within a KDSProvider");
   }
   return context;
 };
@@ -17,13 +24,16 @@ export const KDSProvider = ({ children, stationId }) => {
   const [error, setError] = useState(null);
 
   // Filter orders by stationId
-  const filterOrdersByStation = useCallback((allOrders) => {
-    if (!allOrders || !stationId) return [];
-    
-    return Object.values(allOrders)
-      .filter(order => order.stationId === stationId)
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  }, [stationId]);
+  const filterOrdersByStation = useCallback(
+    (allOrders) => {
+      if (!allOrders || !stationId) return [];
+
+      return Object.values(allOrders)
+        .filter((order) => order.stationId === stationId)
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    },
+    [stationId]
+  );
 
   useEffect(() => {
     if (!stationId) {
@@ -35,24 +45,28 @@ export const KDSProvider = ({ children, stationId }) => {
     setLoading(true);
     setError(null);
 
-    const ordersRef = ref(database, 'kds_orders');
-    
-    const unsubscribe = onValue(ordersRef, (snapshot) => {
-      try {
-        const allOrders = snapshot.val();
-        const stationOrders = filterOrdersByStation(allOrders);
-        setOrders(stationOrders);
+    const ordersRef = ref(database, "kds_orders");
+
+    const unsubscribe = onValue(
+      ordersRef,
+      (snapshot) => {
+        try {
+          const allOrders = snapshot.val();
+          const stationOrders = filterOrdersByStation(allOrders);
+          setOrders(stationOrders);
+          setLoading(false);
+        } catch (err) {
+          setError("Failed to load orders");
+          setLoading(false);
+          console.error("Error processing orders:", err);
+        }
+      },
+      (error) => {
+        setError("Failed to connect to KDS");
         setLoading(false);
-      } catch (err) {
-        setError('Failed to load orders');
-        setLoading(false);
-        console.error('Error processing orders:', err);
+        console.error("Firebase error:", error);
       }
-    }, (error) => {
-      setError('Failed to connect to KDS');
-      setLoading(false);
-      console.error('Firebase error:', error);
-    });
+    );
 
     return () => unsubscribe();
   }, [stationId, filterOrdersByStation]);
@@ -64,37 +78,43 @@ export const KDSProvider = ({ children, stationId }) => {
       const snapshot = await new Promise((resolve, reject) => {
         onValue(orderRef, resolve, reject, { onlyOnce: true });
       });
-      
+
       const order = snapshot.val();
       if (!order) {
-        throw new Error('Order not found');
+        throw new Error("Order not found");
       }
 
       // Update the specific item
-      const updatedItems = order.items.map(item => 
-        item.id === itemId 
-          ? { 
-              ...item, 
-              status, 
-              updatedAt: new Date().toISOString() 
+      const updatedItems = order.items.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              status,
+              updatedAt: new Date().toISOString(),
             }
           : item
       );
 
       // Calculate new overall status
-      const pendingItems = updatedItems.filter(item => item.status === 'pending').length;
-      const cookingItems = updatedItems.filter(item => item.status === 'cooking').length;
-      const readyItems = updatedItems.filter(item => item.status === 'ready').length;
+      const pendingItems = updatedItems.filter(
+        (item) => item.status === "pending"
+      ).length;
+      const cookingItems = updatedItems.filter(
+        (item) => item.status === "cooking"
+      ).length;
+      const readyItems = updatedItems.filter(
+        (item) => item.status === "ready"
+      ).length;
 
-      let overallStatus = 'pending';
-      if (readyItems === updatedItems.length) overallStatus = 'ready';
-      else if (cookingItems > 0 || readyItems > 0) overallStatus = 'cooking';
+      let overallStatus = "pending";
+      if (readyItems === updatedItems.length) overallStatus = "ready";
+      else if (cookingItems > 0 || readyItems > 0) overallStatus = "cooking";
 
       // Prepare updates
       const updates = {
         items: updatedItems,
         overallStatus,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       // Push updates to Firebase
@@ -102,7 +122,7 @@ export const KDSProvider = ({ children, stationId }) => {
 
       return true;
     } catch (error) {
-      console.error('Error updating item status:', error);
+      console.error("Error updating item status:", error);
       throw error;
     }
   }, []);
@@ -111,12 +131,12 @@ export const KDSProvider = ({ children, stationId }) => {
     try {
       const orderRef = ref(database, `kds_orders/${orderId}`);
       await update(orderRef, {
-        overallStatus: 'completed',
-        updatedAt: new Date().toISOString()
+        overallStatus: "completed",
+        updatedAt: new Date().toISOString(),
       });
       return true;
     } catch (error) {
-      console.error('Error marking order as complete:', error);
+      console.error("Error marking order as complete:", error);
       throw error;
     }
   }, []);
@@ -126,12 +146,8 @@ export const KDSProvider = ({ children, stationId }) => {
     loading,
     error,
     updateItemStatus,
-    markOrderAsComplete
+    markOrderAsComplete,
   };
 
-  return (
-    <KDSContext.Provider value={value}>
-      {children}
-    </KDSContext.Provider>
-  );
+  return <KDSContext.Provider value={value}>{children}</KDSContext.Provider>;
 };

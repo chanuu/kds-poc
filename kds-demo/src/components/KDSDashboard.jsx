@@ -1,14 +1,18 @@
-import React from 'react';
-import { useKDS } from '../contexts/KDSContext';
-import OrderCard from './OrderCard';
-import './KDSDashboard.css';
+import React from "react";
+import { useKDS } from "../contexts/KDSContext";
+import OrderCard from "./OrderCard";
+import "./KDSDashboard.css";
 
-export const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
+const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
   const { orders, loading, error } = useKDS();
 
-  const pendingOrders = orders.filter(order => order.overallStatus === 'pending');
-  const cookingOrders = orders.filter(order => order.overallStatus === 'cooking');
-  const readyOrders = orders.filter(order => order.overallStatus === 'ready');
+  const pendingOrders = orders.filter(
+    (order) => order.overallStatus === "pending"
+  );
+  const cookingOrders = orders.filter(
+    (order) => order.overallStatus === "cooking"
+  );
+  const readyOrders = orders.filter((order) => order.overallStatus === "ready");
 
   if (loading) {
     return (
@@ -43,7 +47,7 @@ export const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
         <div className="orders-column pending-column">
           <h2>Pending ({pendingOrders.length})</h2>
           <div className="orders-list">
-            {pendingOrders.map(order => (
+            {pendingOrders.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}
             {pendingOrders.length === 0 && (
@@ -55,7 +59,7 @@ export const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
         <div className="orders-column cooking-column">
           <h2>Cooking ({cookingOrders.length})</h2>
           <div className="orders-list">
-            {cookingOrders.map(order => (
+            {cookingOrders.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}
             {cookingOrders.length === 0 && (
@@ -67,7 +71,7 @@ export const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
         <div className="orders-column ready-column">
           <h2>Ready to Serve ({readyOrders.length})</h2>
           <div className="orders-list">
-            {readyOrders.map(order => (
+            {readyOrders.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}
             {readyOrders.length === 0 && (
@@ -80,3 +84,4 @@ export const KDSDashboard = ({ stationName = "Kitchen Station" }) => {
   );
 };
 
+export default KDSDashboard;

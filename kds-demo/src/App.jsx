@@ -1,4 +1,5 @@
 import KDSDashboard from './components/KDSDashboard';
+import { KDSProvider } from './contexts/KDSContext';
 
 function App() {
   const STATION_ID = 'station_ghi789';
