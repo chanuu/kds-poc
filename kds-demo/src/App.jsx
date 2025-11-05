@@ -2,7 +2,7 @@ import KDSDashboard from './components/KDSDashboard';
 import { KDSProvider } from './contexts/KDSContext';
 
 function App() {
-  const STATION_ID = 'station_ghi789';
+  const STATION_ID = '32345678-1234-1234-1234-123456789abc';
   const STATION_NAME = 'Indian Kitchen';
 
   return (
