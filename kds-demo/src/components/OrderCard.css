@@ -1,0 +1,195 @@
+.order-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.order-card.pending {
+  border-left: 4px solid #e74c3c;
+}
+
+.order-card.cooking {
+  border-left: 4px solid #f39c12;
+}
+
+.order-card.ready {
+  border-left: 4px solid #27ae60;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.order-meta h3 {
+  margin: 0 0 5px 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.customer-name {
+  color: #7f8c8d;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.order-timing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.order-time {
+  color: #2c3e50;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.elapsed-time {
+  color: #95a5a6;
+  font-size: 0.8rem;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: bold;
+  display: block;
+  color: #2c3e50;
+  margin-bottom: 2px;
+}
+
+.item-quantity {
+  color: #e74c3c;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.item-notes {
+  color: #95a5a6;
+  font-size: 0.8rem;
+  display: block;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-indicator {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  text-transform: capitalize;
+  min-width: 60px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-start-cooking {
+  background: #f39c12;
+}
+
+.btn-start-cooking:hover {
+  background: #e67e22;
+}
+
+.btn-mark-ready {
+  background: #27ae60;
+}
+
+.btn-mark-ready:hover {
+  background: #229954;
+}
+
+.btn-complete-order {
+  background: #2c3e50;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.btn-complete-order:hover {
+  background: #34495e;
+}
+
+.order-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.order-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.progress-stats span {
+  font-weight: bold;
+}
