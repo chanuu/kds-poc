@@ -6,7 +6,7 @@ import {
   useCallback,
 } from "react";
 import { database } from "../firebase";
-import { onValue, ref } from "firebase/database";
+import { onValue, ref, update } from "firebase/database"; // Make sure update is imported
 
 const KDSContext = createContext();
 
@@ -71,58 +71,20 @@ export const KDSProvider = ({ children, stationId }) => {
     return () => unsubscribe();
   }, [stationId, filterOrdersByStation]);
 
-  const updateItemStatus = useCallback(async (orderId, itemId, status) => {
+  // Update overall order status
+  const updateOrderStatus = useCallback(async (orderId, status) => {
     try {
-      // Get current order
       const orderRef = ref(database, `kds_orders/${orderId}`);
-      const snapshot = await new Promise((resolve, reject) => {
-        onValue(orderRef, resolve, reject, { onlyOnce: true });
-      });
-
-      const order = snapshot.val();
-      if (!order) {
-        throw new Error("Order not found");
-      }
-
-      // Update the specific item
-      const updatedItems = order.items.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              status,
-              updatedAt: new Date().toISOString(),
-            }
-          : item
-      );
-
-      // Calculate new overall status
-      const pendingItems = updatedItems.filter(
-        (item) => item.status === "pending"
-      ).length;
-      const cookingItems = updatedItems.filter(
-        (item) => item.status === "cooking"
-      ).length;
-      const readyItems = updatedItems.filter(
-        (item) => item.status === "ready"
-      ).length;
-
-      let overallStatus = "pending";
-      if (readyItems === updatedItems.length) overallStatus = "ready";
-      else if (cookingItems > 0 || readyItems > 0) overallStatus = "cooking";
-
-      // Prepare updates
+      
       const updates = {
-        items: updatedItems,
-        overallStatus,
+        overallStatus: status,
         updatedAt: new Date().toISOString(),
       };
 
-      // Push updates to Firebase
       await update(orderRef, updates);
-
       return true;
     } catch (error) {
-      console.error("Error updating item status:", error);
+      console.error("Error updating order status:", error);
       throw error;
     }
   }, []);
@@ -145,7 +107,7 @@ export const KDSProvider = ({ children, stationId }) => {
     orders,
     loading,
     error,
-    updateItemStatus,
+    updateOrderStatus, // Changed from updateItemStatus
     markOrderAsComplete,
   };
 

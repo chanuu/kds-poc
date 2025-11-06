@@ -3,11 +3,11 @@ import { useKDS } from "../contexts/KDSContext";
 import "./OrderCard.css";
 
 const OrderCard = ({ order }) => {
-  const { updateItemStatus, markOrderAsComplete } = useKDS();
+  const { updateOrderStatus, markOrderAsComplete } = useKDS(); // Changed to updateOrderStatus
 
-  const handleStatusUpdate = async (itemId, newStatus) => {
+  const handleStatusUpdate = async (newStatus) => {
     try {
-      await updateItemStatus(order.id, itemId, newStatus);
+      await updateOrderStatus(order.id, newStatus);
     } catch (error) {
       alert("Failed to update status. Please try again.");
     }
@@ -56,7 +56,31 @@ const OrderCard = ({ order }) => {
     return `${diffHours}h ${diffMins % 60}m ago`;
   };
 
-  const allItemsReady = order.items.every((item) => item.status === "ready");
+  const getNextStatus = (currentStatus) => {
+    switch (currentStatus) {
+      case "pending":
+        return "cooking";
+      case "cooking":
+        return "ready";
+      case "ready":
+        return "completed";
+      default:
+        return currentStatus;
+    }
+  };
+
+  const getStatusButtonText = (currentStatus) => {
+    switch (currentStatus) {
+      case "pending":
+        return "Start Cooking";
+      case "cooking":
+        return "Mark as Ready";
+      case "ready":
+        return "Complete Order";
+      default:
+        return "Update Status";
+    }
+  };
 
   return (
     <div className={`order-card ${order.overallStatus}`}>
@@ -83,55 +107,31 @@ const OrderCard = ({ order }) => {
                 <span className="item-notes">Note: {item.notes}</span>
               )}
             </div>
-
-            <div className="item-actions">
-              <span
-                className="status-indicator"
-                style={{ backgroundColor: getStatusColor(item.status) }}
-              >
-                {item.status}
-              </span>
-
-              <div className="action-buttons">
-                {item.status === "pending" && (
-                  <button
-                    className="btn btn-start-cooking"
-                    onClick={() => handleStatusUpdate(item.id, "cooking")}
-                  >
-                    Start
-                  </button>
-                )}
-                {item.status === "cooking" && (
-                  <button
-                    className="btn btn-mark-ready"
-                    onClick={() => handleStatusUpdate(item.id, "ready")}
-                  >
-                    Ready
-                  </button>
-                )}
-              </div>
-            </div>
           </div>
         ))}
       </div>
 
       <div className="order-footer">
-        <div className="order-progress">
-          <div className="progress-stats">
-            <span>
-              Pending:{" "}
-              {order.items.filter((i) => i.status === "pending").length}
-            </span>
-            <span>
-              Cooking:{" "}
-              {order.items.filter((i) => i.status === "cooking").length}
-            </span>
-            <span>
-              Ready: {order.items.filter((i) => i.status === "ready").length}
-            </span>
-          </div>
+        <div className="order-status-info">
+          <span 
+            className="status-indicator"
+            style={{ backgroundColor: getStatusColor(order.overallStatus) }}
+          >
+            Current Status: {order.overallStatus}
+          </span>
+        </div>
 
-          {allItemsReady && (
+        <div className="order-actions">
+          {order.overallStatus !== "completed" && (
+            <button
+              className={`btn btn-status-${order.overallStatus}`}
+              onClick={() => handleStatusUpdate(getNextStatus(order.overallStatus))}
+            >
+              {getStatusButtonText(order.overallStatus)}
+            </button>
+          )}
+          
+          {order.overallStatus === "ready" && (
             <button
               className="btn btn-complete-order"
               onClick={handleCompleteOrder}
