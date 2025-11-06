@@ -3,7 +3,7 @@ import { useKDS } from "../contexts/KDSContext";
 import "./OrderCard.css";
 
 const OrderCard = ({ order }) => {
-  const { updateOrderStatus, markOrderAsComplete } = useKDS(); // Changed to updateOrderStatus
+  const { updateOrderStatus, markOrderAsComplete } = useKDS();
 
   const handleStatusUpdate = async (newStatus) => {
     try {
@@ -50,10 +50,8 @@ const OrderCard = ({ order }) => {
     const diffMins = Math.floor(diffMs / 60000);
 
     if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-
-    const diffHours = Math.floor(diffMins / 60);
-    return `${diffHours}h ${diffMins % 60}m ago`;
+    if (diffMins < 60) return `${diffMins}m`;
+    return `${Math.floor(diffMins / 60)}h`;
   };
 
   const getNextStatus = (currentStatus) => {
@@ -72,59 +70,53 @@ const OrderCard = ({ order }) => {
   const getStatusButtonText = (currentStatus) => {
     switch (currentStatus) {
       case "pending":
-        return "Start Cooking";
+        return "Start";
       case "cooking":
-        return "Mark as Ready";
+        return "Ready";
       case "ready":
-        return "Complete Order";
+        return "Complete";
       default:
-        return "Update Status";
+        return "Update";
     }
   };
 
   return (
-    <div className={`order-card ${order.overallStatus}`}>
-      <div className="order-header">
-        <div className="order-meta">
-          <h3>Table {order.tableNumber}</h3>
+    <div className={`order-card compact ${order.overallStatus}`}>
+      <div className="order-header-compact">
+        <div className="order-basic-info">
+          <span className="table-number">T{order.tableNumber}</span>
           <span className="customer-name">{order.customerName}</span>
         </div>
-        <div className="order-timing">
+        <div className="order-timing-compact">
           <span className="order-time">{formatTime(order.createdAt)}</span>
-          <span className="elapsed-time">
-            {getElapsedTime(order.createdAt)}
-          </span>
+          <span className="elapsed-time">{getElapsedTime(order.createdAt)}</span>
         </div>
       </div>
 
-      <div className="order-items">
-        {order.items.map((item) => (
-          <div key={item.id} className="order-item">
-            <div className="item-info">
-              <span className="item-name">{item.name}</span>
-              <span className="item-quantity">x{item.quantity}</span>
-              {item.notes && (
-                <span className="item-notes">Note: {item.notes}</span>
-              )}
-            </div>
+      <div className="order-items-compact">
+        {order.items.map((item, index) => (
+          <div key={item.id} className="order-item-compact">
+            <span className="item-name">{item.name}</span>
+            <span className="item-quantity">x{item.quantity}</span>
+            {item.notes && <span className="item-notes-icon" title={item.notes}>📝</span>}
           </div>
         ))}
       </div>
 
-      <div className="order-footer">
-        <div className="order-status-info">
+      <div className="order-footer-compact">
+        <div className="status-section">
           <span 
-            className="status-indicator"
+            className="status-indicator-compact"
             style={{ backgroundColor: getStatusColor(order.overallStatus) }}
           >
-            Current Status: {order.overallStatus}
+            {order.overallStatus}
           </span>
         </div>
-
-        <div className="order-actions">
-          {order.overallStatus !== "completed" && (
+        
+        <div className="actions-section">
+          {order.overallStatus !== "completed" && order.overallStatus !== "ready" && (
             <button
-              className={`btn btn-status-${order.overallStatus}`}
+              className={`btn-compact btn-status-${order.overallStatus}`}
               onClick={() => handleStatusUpdate(getNextStatus(order.overallStatus))}
             >
               {getStatusButtonText(order.overallStatus)}
@@ -133,10 +125,10 @@ const OrderCard = ({ order }) => {
           
           {order.overallStatus === "ready" && (
             <button
-              className="btn btn-complete-order"
+              className="btn-compact btn-complete"
               onClick={handleCompleteOrder}
             >
-              Complete Order
+              Complete
             </button>
           )}
         </div>
